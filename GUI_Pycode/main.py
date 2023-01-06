@@ -18,7 +18,7 @@ root.configure(background = 'light blue')
 root.geometry("700x500") # set the window size
 #Global vars
 data = ["0","0","0","0"];
-data_VBAT = np.array([])
+data_VBAT=np.array([])
 y = 450;#Buttons location in y axis
 #host name is localhost because both broker and python are Running on same machine/Computer.
 broker="localhost";  #host name
@@ -64,13 +64,13 @@ client.subscribe(topic)#subscribe topic test
 #------create plot function---------------
 def plot_data(x):
     global data_VBAT
-    V_BAT = float(x)/1000
+    V_BAT = float(x)/1000;
     print(V_BAT)
     if(len(data_VBAT) < 100):
             data_VBAT = np.append(data_VBAT,float(V_BAT))
     else:
             data_VBAT[0:99] = data_VBAT[1:100]
-            data_VBAT[99] = float(data_VBAT[0:4])
+            data_VBAT[99] = float(V_BAT)
     lines.set_xdata(np.arange(0,len(data_VBAT)))
     lines.set_ydata(data_VBAT)
     canvas.draw()
