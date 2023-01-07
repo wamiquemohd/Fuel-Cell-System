@@ -15,7 +15,7 @@ from tkinter import ttk
 root = tk.Tk();
 root.title("GUI");
 root.configure(background = 'light blue')
-root.geometry("1400x750") # set the window size
+root.geometry("1400x750") # set the window size 1400*850
 #Global vars
 data = ["0","0","0","0"];
 data_VBAT=np.array([])
@@ -24,7 +24,7 @@ data_VFC=np.array([])
 data_CFC=np.array([])
 width_plt = (root.winfo_screenwidth()/2) - 80
 #print(width_plt)
-height_plt = (root.winfo_screenheight()/2) - 180
+height_plt = (root.winfo_screenheight()/2) - 150#180
 #print(height_plt)
 y = 700;#Buttons location in y axis
 #host name is localhost because both broker and python are Running on same machine/Computer.
@@ -76,7 +76,6 @@ client.subscribe(topic)#subscribe topic test
 def plot_data_VBAT(x):
     global data_VBAT
     V_BAT = float(x)/1000;
-    print(V_BAT)
     if(len(data_VBAT) < 100):
             data_VBAT = np.append(data_VBAT,float(V_BAT))
     else:
@@ -91,7 +90,6 @@ def plot_data_VBAT(x):
 def plot_data_CBAT(x):
     global data_CBAT
     C_BAT = float(x)/1000;
-    print(C_BAT)
     if(len(data_CBAT) < 100):
             data_CBAT = np.append(data_CBAT,float(C_BAT))
     else:
@@ -106,7 +104,6 @@ def plot_data_CBAT(x):
 def plot_data_VFC(x):
     global data_VFC
     V_FC = float(x)/1000;
-    print(V_FC)
     if(len(data_VFC) < 100):
             data_VFC = np.append(data_VFC,float(V_FC))
     else:
@@ -121,7 +118,6 @@ def plot_data_VFC(x):
 def plot_data_CFC(x):
     global data_CFC
     C_FC = float(x)/1000;
-    print(C_FC)
     if(len(data_CFC) < 100):
             data_CFC = np.append(data_CFC,float(C_FC))
     else:
@@ -180,7 +176,7 @@ lines_VFC = ax_VFC.plot([],[])[0]
 
 canvas_VFC = FigureCanvasTkAgg(fig_VFC, master=root)  # A tk.DrawingArea.
 width_height_canvas_VBAT = canvas_VBAT.get_width_height()
-canvas_VFC.get_tk_widget().place(x = 10,y=width_height_canvas_VBAT[1] - 120, width = width_plt,height = height_plt)
+canvas_VFC.get_tk_widget().place(x = 10,y=width_height_canvas_VBAT[1] - 130, width = width_plt,height = height_plt)
 canvas_VFC.draw()
 
 #------plot for Fuel-cell current-----------
@@ -197,7 +193,7 @@ lines_CFC = ax_CFC.plot([],[])[0]
 
 canvas_CFC = FigureCanvasTkAgg(fig_CFC, master=root)  # A tk.DrawingArea.
 width_height_canvas_VBAT = canvas_VBAT.get_width_height()
-canvas_CFC.get_tk_widget().place(x = width_height_canvas_VBAT[0] + (width_height_canvas_VBAT[0])/10,y=width_height_canvas_VBAT[1] - 120, width = width_plt,height = height_plt)
+canvas_CFC.get_tk_widget().place(x = width_height_canvas_VBAT[0] + (width_height_canvas_VBAT[0])/10,y=width_height_canvas_VBAT[1] - 130, width = width_plt,height = height_plt)
 canvas_CFC.draw()
 
 #----------Create Buttons-----------------
@@ -237,6 +233,11 @@ FCPMCOFFButton = ttk.Button(root, text="Turn off FC PMC", command=TurnOffFCPMC);
 FCPMCOFFButton.pack(side="right" , fill="x");
 FCPMCOFFButton.place(x=FCPMCONButton.winfo_x()+FCPMCONButton.winfo_reqwidth()+10, y=y)
 #FCPMCOFFButton.place(x=390, y=y)
+#exit Button
+root.update()
+exitButton = ttk.Button(root, text="Quit", command=root.destroy);
+exitButton.pack(side="left" , fill="x");
+exitButton.place(x=1300, y=y)
 while 1:
     client.loop_start() #contineously checking for message
     root.mainloop()
