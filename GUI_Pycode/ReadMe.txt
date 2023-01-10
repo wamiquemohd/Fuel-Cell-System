@@ -7,7 +7,7 @@ Second CMD
 #CMD is Publisher and GUI is Subscriber
 CMD: cd C:\Program Files\mosquitto 
 Run code
-CMD: mosquitto_pub -t Sub -h localhost -p 1883 -m "15000 8000 48000 8000"
+CMD: mosquitto_pub -t Sub -h localhost -p 1883 -m "15000 8000 48000 8000 50"
 ----------------
 Third CMD
 ##CMD is Subscriber and GUI is Publisher

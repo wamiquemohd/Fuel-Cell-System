@@ -1,3 +1,5 @@
+import tkinter
+
 import paho.mqtt.client as paho
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
@@ -15,16 +17,17 @@ from tkinter import ttk
 root = tk.Tk();
 root.title("GUI");
 root.configure(background = 'light blue')
-root.geometry("1400x750") # set the window size 1400*850
+root.geometry("1515x750") # set the window size 1400*850
 #Global vars
-data = ["0","0","0","0"];
+data = ["0","0","0","0","0"];
 data_VBAT=np.array([])
 data_CBAT=np.array([])
 data_VFC=np.array([])
 data_CFC=np.array([])
-width_plt = (root.winfo_screenwidth()/2) - 80
+data_SOC=np.array([])
+width_plt = (root.winfo_screenwidth()/3) - 20
 #print(width_plt)
-height_plt = (root.winfo_screenheight()/2) - 150#180
+height_plt = (root.winfo_screenheight()/3) - 50#180
 #print(height_plt)
 y = 700;#Buttons location in y axis
 #host name is localhost because both broker and python are Running on same machine/Computer.
@@ -51,11 +54,13 @@ def split_data(data):
   print(x[1]);# Battery current
   print(x[2]);# Fuel cell voltage
   print(x[3]);# Fuel cell current
+  print(x[4]);# Fuel cell current
   print("Task done");
   plot_data_VBAT(float(x[0]))
   plot_data_CBAT(float(x[1]))
   plot_data_VFC(float(x[2]))
   plot_data_CFC(float(x[3]))
+  plot_data_SOC(float(x[4]))
 
 client= paho.Client("user") #create client object
 
@@ -127,6 +132,19 @@ def plot_data_CFC(x):
     lines_CFC.set_ydata(data_CFC)
     canvas_CFC.draw()
     root.after(1,plot_data_CFC)
+    #------Plot SOC---------------
+def plot_data_SOC(x):
+    global data_SOC
+    SOC = float(x);
+    if(len(data_SOC) < 100):
+            data_SOC = np.append(data_SOC,float(SOC))
+    else:
+            data_SOC[0:99] = data_SOC[1:100]
+            data_SOC[99] = float(SOC)
+    lines_SOC.set_xdata(np.arange(0,len(data_SOC)))
+    lines_SOC.set_ydata(data_SOC)
+    canvas_SOC.draw()
+    root.after(1,plot_data_SOC)
 #------create Plot object on GUI----------
 # add figure canvas
 #------plot for Battery voltage-----------
@@ -135,7 +153,7 @@ ax_VBAT = fig_VBAT.add_subplot(111)
 
 #ax = plt.axes(xlim=(0,100),ylim=(0, 120)); #displaying only 100 samples
 ax_VBAT.set_title('Battery voltage');
-ax_VBAT.set_xlabel('Time')
+#ax_VBAT.set_xlabel('Second')
 ax_VBAT.set_ylabel('Voltage')
 ax_VBAT.set_xlim(0,100)
 ax_VBAT.set_ylim(0,20)
@@ -151,7 +169,7 @@ ax_CBAT = fig_CBAT.add_subplot(111)
 
 #ax = plt.axes(xlim=(0,100),ylim=(0, 120)); #displaying only 100 samples
 ax_CBAT.set_title('Battery current');
-ax_CBAT.set_xlabel('Time')
+#ax_CBAT.set_xlabel('Second')
 ax_CBAT.set_ylabel('Current')
 ax_CBAT.set_xlim(0,100)
 ax_CBAT.set_ylim(0,10)
@@ -159,7 +177,7 @@ lines_CBAT = ax_CBAT.plot([],[])[0]
 
 canvas_CBAT = FigureCanvasTkAgg(fig_CBAT, master=root)  # A tk.DrawingArea.
 width_height_canvas_VBAT = canvas_VBAT.get_width_height()
-canvas_CBAT.get_tk_widget().place(x = width_height_canvas_VBAT[0] + (width_height_canvas_VBAT[0])/10,y=10, width = width_plt,height = height_plt)
+canvas_CBAT.get_tk_widget().place(x = width_height_canvas_VBAT[0] - (width_height_canvas_VBAT[0])/5,y=10, width = width_plt,height = height_plt)
 canvas_CBAT.draw()
 
 #------plot for Fuel-cell voltage-----------
@@ -168,7 +186,7 @@ ax_VFC = fig_VFC.add_subplot(111)
 
 #ax = plt.axes(xlim=(0,100),ylim=(0, 120)); #displaying only 100 samples
 ax_VFC.set_title('Fuel-cell voltage');
-ax_VFC.set_xlabel('Time')
+#ax_VFC.set_xlabel('Second')
 ax_VFC.set_ylabel('Voltage')
 ax_VFC.set_xlim(0,100)
 ax_VFC.set_ylim(0,65)
@@ -176,7 +194,7 @@ lines_VFC = ax_VFC.plot([],[])[0]
 
 canvas_VFC = FigureCanvasTkAgg(fig_VFC, master=root)  # A tk.DrawingArea.
 width_height_canvas_VBAT = canvas_VBAT.get_width_height()
-canvas_VFC.get_tk_widget().place(x = 10,y=width_height_canvas_VBAT[1] - 130, width = width_plt,height = height_plt)
+canvas_VFC.get_tk_widget().place(x = 10,y=width_height_canvas_VBAT[1]-180, width = width_plt,height = height_plt)
 canvas_VFC.draw()
 
 #------plot for Fuel-cell current-----------
@@ -185,7 +203,7 @@ ax_CFC = fig_CFC.add_subplot(111)
 
 #ax = plt.axes(xlim=(0,100),ylim=(0, 120)); #displaying only 100 samples
 ax_CFC.set_title('Fuel-cell current');
-ax_CFC.set_xlabel('Time')
+#ax_CFC.set_xlabel('Second')
 ax_CFC.set_ylabel('Current')
 ax_CFC.set_xlim(0,100)
 ax_CFC.set_ylim(0,20)
@@ -193,9 +211,25 @@ lines_CFC = ax_CFC.plot([],[])[0]
 
 canvas_CFC = FigureCanvasTkAgg(fig_CFC, master=root)  # A tk.DrawingArea.
 width_height_canvas_VBAT = canvas_VBAT.get_width_height()
-canvas_CFC.get_tk_widget().place(x = width_height_canvas_VBAT[0] + (width_height_canvas_VBAT[0])/10,y=width_height_canvas_VBAT[1] - 130, width = width_plt,height = height_plt)
+canvas_CFC.get_tk_widget().place(x = width_height_canvas_VBAT[0] - (width_height_canvas_VBAT[0])/5,y=width_height_canvas_VBAT[1] - 180, width = width_plt,height = height_plt)
 canvas_CFC.draw()
 
+#------plot for SOC-----------
+fig_SOC = Figure();
+ax_SOC = fig_SOC.add_subplot(111)
+
+#ax = plt.axes(xlim=(0,100),ylim=(0, 120)); #displaying only 100 samples
+ax_SOC.set_title('SOC');
+#ax_SOC.set_xlabel('Second')
+ax_SOC.set_ylabel('Percent')
+ax_SOC.set_xlim(0,100)
+ax_SOC.set_ylim(0,100)
+lines_SOC = ax_SOC.plot([],[])[0]
+
+canvas_SOC = FigureCanvasTkAgg(fig_SOC, master=root)  # A tk.DrawingArea.
+width_height_canvas_CBAT = canvas_CBAT.get_width_height()
+canvas_SOC.get_tk_widget().place(x = width_height_canvas_CBAT[0]+375,y=10 , width = width_plt,height = height_plt)
+canvas_CFC.draw()
 #----------Create Buttons-----------------
 #Buttons Function
 #Turn on Battery PMC
@@ -204,7 +238,7 @@ def TurnOnBatPMC():
 #Button
 root.update()
 BATPMCONButton = ttk.Button(root, text="Turn on Bat PMC", command=TurnOnBatPMC);
-BATPMCONButton.pack();
+BATPMCONButton.pack(side=tkinter.BOTTOM);
 BATPMCONButton.place(x=60, y=y)
 #Turn off Battery PMC
 def TurnOffBatPMC():
@@ -212,7 +246,7 @@ def TurnOffBatPMC():
 #Button
 root.update()
 BATPMCOFFButton = ttk.Button(root, text="Turn off Bat PMC", command=TurnOffBatPMC);
-BATPMCOFFButton.pack();
+BATPMCOFFButton.pack(side=tkinter.BOTTOM);
 BATPMCOFFButton.place(x=BATPMCONButton.winfo_x()+BATPMCONButton.winfo_reqwidth()+10, y=y)
 #BATPMCOFFButton.place(x=170, y=y)
 #Turn on Fuelcell PMC
@@ -221,7 +255,7 @@ def TurnOnFCPMC():
 #Button
 root.update()
 FCPMCONButton = ttk.Button(root, text="Turn on FC PMC", command=TurnOnFCPMC);
-FCPMCONButton.pack(side="right" , fill="x");
+FCPMCONButton.pack(side=tkinter.BOTTOM , fill="x");
 FCPMCONButton.place(x=BATPMCOFFButton.winfo_x()+BATPMCOFFButton.winfo_reqwidth()+10, y=y)
 #FCPMCONButton.place(x=280, y=y)
 #Turn off Fuelcell PMC
@@ -230,13 +264,13 @@ def TurnOffFCPMC():
 #Button
 root.update()
 FCPMCOFFButton = ttk.Button(root, text="Turn off FC PMC", command=TurnOffFCPMC);
-FCPMCOFFButton.pack(side="right" , fill="x");
+FCPMCOFFButton.pack(side=tkinter.BOTTOM , fill="x");
 FCPMCOFFButton.place(x=FCPMCONButton.winfo_x()+FCPMCONButton.winfo_reqwidth()+10, y=y)
 #FCPMCOFFButton.place(x=390, y=y)
 #exit Button
 root.update()
 exitButton = ttk.Button(root, text="Quit", command=root.destroy);
-exitButton.pack(side="left" , fill="x");
+exitButton.pack(side=tkinter.BOTTOM , fill="x");
 exitButton.place(x=1300, y=y)
 while 1:
     client.loop_start() #contineously checking for message
